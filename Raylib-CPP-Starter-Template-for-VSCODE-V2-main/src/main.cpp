@@ -65,7 +65,7 @@ int main()
                                 tempArray[i-checkDir][j+1] = 3;
                             }else{
                                 int checkDir2 = GetRandomValue(0,1) == 0 ? -1:1;
-                                bool foundNewCell = false;/*
+                                bool foundNewCell = false;/* WATER NOT DISPERSING YET
                                 for(int k = 0; !foundNewCell && k < waterDispersity; k++){
                                     if(tempArray[i+k*checkDir2][j] ==0){
                                         tempArray[i+k*checkDir2][j] = 3;
