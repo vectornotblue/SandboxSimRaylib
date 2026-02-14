@@ -6,9 +6,9 @@ int main()
     
     const int screenWidth = 1920;
     const int screenHeight = 1080;
-    const int arrayRows = 1920;
-    const int arrayColumns = 1080;
-    int mouseRadius = 5;
+    const int arrayRows = 192;
+    const int arrayColumns = 108;
+    int mouseRadius = 1;
     int plotSize = screenHeight/arrayColumns;
     int array[arrayRows][arrayColumns] = {0};
     int tempArray[arrayRows][arrayColumns] = {0};
@@ -16,11 +16,18 @@ int main()
     SetTargetFPS(60);
     double lastTime = GetTime();
     double currentTime = 0.0, tickPeriod = .02;
-    array[5][10]=1;
-    array[6][11]=1;
-    array[4][11]=1;
+    int waterDispersity = 4;
+    
     while (!WindowShouldClose())
     {
+        if(IsKeyPressed(KEY_R)){
+            for(int i = 0; i < arrayRows; i++){
+                for(int j = 0; j < arrayColumns; j++){
+                    array[i][j] = 0; 
+                    tempArray[i][j] = 0;
+                }
+            }
+        }
         currentTime = GetTime();
         if (currentTime-lastTime>tickPeriod){
             lastTime = currentTime;
@@ -31,19 +38,48 @@ int main()
                         tempArray[i][j] =2;
                     }else if((array[i][j] == 1)&&(j+1 <arrayColumns))
                     {
+                        int checkDir = GetRandomValue(0,1) == 0 ? -1:1;
                         if(tempArray[i][j+1] != 0){
-                            if(tempArray[i+1][j+1] ==0 && tempArray[i+1][j]==0){
+                            if(tempArray[i+checkDir][j+1] ==0 && tempArray[i+checkDir][j]==0){
                                 tempArray[i][j] = 0;
-                                tempArray[i+1][j+1] = 1;
-                            }else if(tempArray[i-1][j+1] ==0&& tempArray[i-1][j]==0){
+                                tempArray[i+checkDir][j+1] = 1;
+                            }else if(tempArray[i-checkDir][j+1] ==0&& tempArray[i-checkDir][j]==0){
                                 tempArray[i][j] = 0;
-                                tempArray[i-1][j+1] = 1;
+                                tempArray[i-checkDir][j+1] = 1;
                             }else{
                                 tempArray[i][j] = 1;
                             }    
                         }else{
                             tempArray[i][j] = 0;
                             tempArray[i][j+1] = 1;
+                        }
+                    } else if((array[i][j] ==3) &&(j+1 <arrayColumns)){
+
+                        int checkDir = GetRandomValue(0,1) == 0 ? -1:1;
+                        if(tempArray[i][j+1] != 0){
+                            if(tempArray[i+checkDir][j+1] ==0 && tempArray[i+checkDir][j]==0){
+                                tempArray[i][j] = 0;
+                                tempArray[i+checkDir][j+1] = 3;
+                            }else if(tempArray[i-checkDir][j+1] ==0&& tempArray[i-checkDir][j]==0){
+                                tempArray[i][j] = 0;
+                                tempArray[i-checkDir][j+1] = 3;
+                            }else{
+                                int checkDir2 = GetRandomValue(0,1) == 0 ? -1:1;
+                                bool foundNewCell = false;/*
+                                for(int k = 0; !foundNewCell && k < waterDispersity; k++){
+                                    if(tempArray[i+k*checkDir2][j] ==0){
+                                        tempArray[i+k*checkDir2][j] = 3;
+                                        foundNewCell = true;
+                                    }else if (tempArray[i-k*checkDir2][j]){
+                                        tempArray[i-k*checkDir2][j] = 3;
+                                        foundNewCell = true;
+                                    }
+                                } */
+                                tempArray[i][j] = foundNewCell? 0:3;
+                            }    
+                        }else{
+                            tempArray[i][j] = 0;
+                            tempArray[i][j+1] = 3;
                         }
                     }
                 }   
@@ -57,8 +93,8 @@ int main()
         if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
             int rowClicked = GetMousePosition().x/plotSize;
             int columnClicked = GetMousePosition().y/plotSize;
-            for(int i = rowClicked-mouseRadius; i < rowClicked+mouseRadius; i++){
-                for( int j = columnClicked-mouseRadius; j< columnClicked+mouseRadius; j++){
+            for(int i = rowClicked-mouseRadius+1; i < rowClicked+mouseRadius; i++){
+                for( int j = columnClicked-mouseRadius+1; j< columnClicked+mouseRadius; j++){
                     if(array[i][j] == 0){
                         array[i][j] = 1;
                     }
@@ -70,7 +106,24 @@ int main()
         if(IsMouseButtonDown(MOUSE_BUTTON_RIGHT)){
             int rowClicked = GetMousePosition().x/plotSize;
             int columnClicked = GetMousePosition().y/plotSize;
-            array[rowClicked][columnClicked] = 2;
+            for(int i = rowClicked-mouseRadius+1; i < rowClicked+mouseRadius; i++){
+                for( int j = columnClicked-mouseRadius+1; j< columnClicked+mouseRadius; j++){
+                    if(array[i][j] == 0){
+                        array[i][j] = 2;
+                    }
+                }
+            }
+        }
+        if(IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)){
+            int rowClicked = GetMousePosition().x/plotSize;
+            int columnClicked = GetMousePosition().y/plotSize;
+            for(int i = rowClicked-mouseRadius+1; i < rowClicked+mouseRadius; i++){
+                for( int j = columnClicked-mouseRadius+1; j< columnClicked+mouseRadius; j++){
+                    if(array[i][j] == 0){
+                        array[i][j] = 3;
+                    }
+                }
+            }
         }
 
 
@@ -79,15 +132,18 @@ int main()
         for(int i = 0; i < arrayRows; i++){
             for(int j = 0; j < arrayColumns; j++){
                 if(array[i][j] == 0){
-                    DrawRectangle(i*plotSize, j*plotSize, plotSize-1, plotSize-1,BLACK);
+                    DrawRectangle(i*plotSize, j*plotSize, plotSize, plotSize,BLACK);
                 }else if(array[i][j] == 2){
-                    DrawRectangle(i*plotSize, j*plotSize, plotSize-1, plotSize-1,GRAY);
+                    DrawRectangle(i*plotSize, j*plotSize, plotSize, plotSize,GRAY);
+                }else if(array[i][j] == 3){
+                    DrawRectangle(i*plotSize, j*plotSize, plotSize, plotSize,BLUE);
                 }else{
-                    DrawRectangle(i*plotSize, j*plotSize, plotSize-1, plotSize-1,BLUE);
+                    DrawRectangle(i*plotSize, j*plotSize, plotSize, plotSize,YELLOW);
                 }
             }
         }
-
+        DrawRectangle(0,0,950,30, BLACK);
+        DrawText("(R)-Restart     (L Mouse)-Sand     (M Mouse)-Water     (R Mouse)-Stone", 0, 0, 25, BLUE);
         EndDrawing();
     }
     
